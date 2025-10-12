@@ -83,10 +83,10 @@ public class PlayerControls : MonoBehaviour
 
     private void Aim()
     {
-        rb2D.velocity = Vector2.Lerp(rb2D.velocity, Vector2.zero, Time.deltaTime * velocityDampingSpeed);
+        rb2D.linearVelocity = Vector2.Lerp(rb2D.linearVelocity, Vector2.zero, Time.deltaTime * velocityDampingSpeed);
 
         ball.transform.position = Vector2.Lerp(ball.transform.position,foot.transform.position, Time.deltaTime * ballToFeetSpeed);
-        ball.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+        ball.GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
 
         shotDirection = new Vector2(-joystickDirection.x, joystickDirection.y) * shotPower;
 
@@ -153,7 +153,7 @@ public class PlayerControls : MonoBehaviour
 
     public void MovePlayer()
     {
-        rb2D.velocity = new Vector2(joystickDirection.x * horizontalMoveSpeed, rb2D.velocity.y);
+        rb2D.linearVelocity = new Vector2(joystickDirection.x * horizontalMoveSpeed, rb2D.linearVelocity.y);
     }
 
     public void DrawArrow(Vector2 joystickDirection)

@@ -34,7 +34,7 @@ public class BallBehaviour : MonoBehaviour
         if (Input.GetButtonDown("ResetBall"))
         {
             gameObject.transform.position = Vector2.zero;
-            gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+            gameObject.GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
         }
     }
 }
