@@ -1,9 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+public interface JoystickState
+{
+    void HandleInput(Vector2 input);
+}
 public enum PlayerControllers
 {
     Player1, Player2
@@ -11,6 +16,22 @@ public enum PlayerControllers
 
 public class PlayerControls : MonoBehaviour
 {
+    public class MovementState : JoystickState
+    {
+        public void HandleInput(Vector2 input)
+        {
+            
+        }
+    }
+
+    public class AimState : JoystickState
+    {
+        public void HandleInput(Vector2 input)
+        {
+
+        }
+    }
+
     [SerializeField] private Transform foot;
     [SerializeField] private Transform leftRaycastPoint, rightRaycastPoint;
     [SerializeField] private float ballInReachThreshhold;
@@ -20,7 +41,6 @@ public class PlayerControls : MonoBehaviour
     [SerializeField] private float jumpForce;
     [SerializeField] private float shotPower;
     [SerializeField] private LayerMask whatIsGround;
-    [SerializeField] private GameObject arrow;
 
     private Rigidbody2D rb2D;
     private Vector3 facingRight = new Vector3(1f, 1.5f, 1f);
@@ -33,11 +53,13 @@ public class PlayerControls : MonoBehaviour
     private bool isAiming = false;
     private float velocityDampingSpeed = 4f;
 
+    //StateMachine
+    private JoystickState currentState;
+
     void Start()
     {
         rb2D = GetComponent<Rigidbody2D>();
         ball = GameObject.FindGameObjectWithTag("Ball");
-        arrow.SetActive(false);
     }
 
     void Update()
@@ -56,8 +78,6 @@ public class PlayerControls : MonoBehaviour
             {
                 Shoot(shotDirection);
             }
-
-            if (arrow.activeSelf) arrow.SetActive(false);
         }
 
         if (Input.GetButton("Aim_" + playerController.ToString()) && Vector2.Distance(transform.position, ball.transform.position) < ballInReachThreshhold)
@@ -158,15 +178,14 @@ public class PlayerControls : MonoBehaviour
 
     public void DrawArrow(Vector2 joystickDirection)
     {
-        arrow.transform.position = ball.transform.position;
+        //Fix later with Debug.DrawLine???*
+    }
 
-        if (joystickDirection != Vector2.zero)
-        {
-            arrow.SetActive(true);
-
-            float angle = Mathf.Atan2(joystickDirection.y, joystickDirection.x) * Mathf.Rad2Deg;
-
-            arrow.transform.rotation = Quaternion.Euler(0, 0, angle);
-        }
+    //Try setting states from the delegated classes in JoystickState script???
+    public void SetState(JoystickState newState)
+    {
+        currentState = newState;
     }
 }
+
+
