@@ -4,33 +4,12 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
-
-public interface JoystickState
-{
-    void HandleInput(Vector2 input);
-}
 public enum PlayerControllers
 {
     Player1, Player2
 }
 
-public class PlayerControls : MonoBehaviour
-{
-    public class MovementState : JoystickState
-    {
-        public void HandleInput(Vector2 input)
-        {
-            
-        }
-    }
-
-    public class AimState : JoystickState
-    {
-        public void HandleInput(Vector2 input)
-        {
-
-        }
-    }
+public class PlayerControls : MonoBehaviour{
 
     [SerializeField] private Transform foot;
     [SerializeField] private Transform leftRaycastPoint, rightRaycastPoint;
@@ -52,9 +31,6 @@ public class PlayerControls : MonoBehaviour
     private float rayDistance = 0.3f;
     private bool isAiming = false;
     private float velocityDampingSpeed = 4f;
-
-    //StateMachine
-    private JoystickState currentState;
 
     void Start()
     {
@@ -105,7 +81,10 @@ public class PlayerControls : MonoBehaviour
     {
         rb2D.linearVelocity = Vector2.Lerp(rb2D.linearVelocity, Vector2.zero, Time.deltaTime * velocityDampingSpeed);
 
-        ball.transform.position = Vector2.Lerp(ball.transform.position,foot.transform.position, Time.deltaTime * ballToFeetSpeed);
+        Vector2 ballFromBodyVector = new Vector2(joystickDirection.x * -1, joystickDirection.y * -1);
+        float ballRotation = Mathf.Acos(ballFromBodyVector.x) * Mathf.Rad2Deg;
+
+        ball.transform.position = Vector2.Lerp(ball.transform.position, foot.transform.position, Time.deltaTime * ballToFeetSpeed);
         ball.GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
 
         shotDirection = new Vector2(-joystickDirection.x, joystickDirection.y) * shotPower;
@@ -178,14 +157,11 @@ public class PlayerControls : MonoBehaviour
 
     public void DrawArrow(Vector2 joystickDirection)
     {
+        Vector2 ballPosition = ball.transform.position;
+        Debug.DrawLine(ballPosition, ballPosition + shotDirection, Color.red);
         //Fix later with Debug.DrawLine???*
     }
 
-    //Try setting states from the delegated classes in JoystickState script???
-    public void SetState(JoystickState newState)
-    {
-        currentState = newState;
-    }
 }
 
 
