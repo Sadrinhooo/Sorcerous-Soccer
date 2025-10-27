@@ -25,7 +25,7 @@ public class PlayerControls : MonoBehaviour{
     private Vector3 facingRight = new Vector3(1f, 1.5f, 1f);
     private Vector3 facingLeft = new Vector3(-1f, 1.5f, 1f);
     private bool isFacingRight = true;
-    private GameObject ball;
+    public static GameObject ball;
     private Vector2 joystickDirection;
     private Vector2 shotDirection;
     private float rayDistance = 0.3f;
@@ -35,6 +35,7 @@ public class PlayerControls : MonoBehaviour{
     void Start()
     {
         rb2D = GetComponent<Rigidbody2D>();
+        rb2D.gravityScale = 1.5f;
         ball = GameObject.FindGameObjectWithTag("Ball");
     }
 
@@ -54,6 +55,8 @@ public class PlayerControls : MonoBehaviour{
             {
                 Shoot(shotDirection);
             }
+
+            rb2D.gravityScale = 1.5f;
         }
 
         if (Input.GetButton("Aim_" + playerController.ToString()) && Vector2.Distance(transform.position, ball.transform.position) < ballInReachThreshhold)
@@ -61,6 +64,7 @@ public class PlayerControls : MonoBehaviour{
             if (ball.GetComponent<BallBehaviour>().CurrentBallHolder == null)
             {
                 Aim();
+                rb2D.gravityScale = 1f;
             }
         }
         else
@@ -114,7 +118,7 @@ public class PlayerControls : MonoBehaviour{
         RaycastHit2D rightHit = Physics2D.Raycast(rightRaycastPoint.position, Vector2.down, rayDistance, whatIsGround);
 
         return (leftHit.collider != null && leftHit.collider.CompareTag("Ground")) ||
-               (rightHit.collider != null && rightHit.collider.CompareTag("Ground"));
+               (rightHit.collider != null && rightHit.collider.CompareTag("Ground")) ;
     }
 
     private void FlipPlayer()
@@ -159,7 +163,6 @@ public class PlayerControls : MonoBehaviour{
     {
         Vector2 ballPosition = ball.transform.position;
         Debug.DrawLine(ballPosition, ballPosition + shotDirection, Color.red);
-        //Fix later with Debug.DrawLine???*
     }
 
 }

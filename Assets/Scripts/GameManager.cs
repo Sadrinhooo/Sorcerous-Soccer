@@ -3,9 +3,10 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-
+    [SerializeField] private float gameDuration;
     [SerializeField] private TextMeshProUGUI player1ScoreDisplay;
     [SerializeField] private TextMeshProUGUI player2ScoreDisplay;
+    [SerializeField] private TextMeshProUGUI timerDisplay;
 
     private static int _player1Score;
     public static int Player1Score
@@ -24,7 +25,7 @@ public class GameManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+       
     }
 
     // Update is called once per frame
@@ -32,5 +33,15 @@ public class GameManager : MonoBehaviour
     {
         player1ScoreDisplay.text = Player1Score.ToString();
         player2ScoreDisplay.text = Player2Score.ToString();
+        DisplayTimer();
+        
+    }
+
+    public void DisplayTimer()
+    {
+        gameDuration -= Time.deltaTime;
+        int minutesDisplay = (int)gameDuration / 60;
+        int secondsDisplay = (int)gameDuration % 60;
+        timerDisplay.text = minutesDisplay.ToString("00") + ":" + secondsDisplay.ToString("00");
     }
 }

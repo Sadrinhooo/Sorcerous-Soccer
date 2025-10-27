@@ -36,7 +36,6 @@ public class CameraLogic : MonoBehaviour
             cameraFOV = defaultCameraFOV;
         }
 
-        Debug.Log(playerDistance);
     }
 
     public Vector3 GetCameraPosition()
