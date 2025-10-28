@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -20,6 +21,7 @@ public class PlayerControls : MonoBehaviour{
     [SerializeField] private float jumpForce;
     [SerializeField] private float shotPower;
     [SerializeField] private LayerMask whatIsGround;
+    [SerializeField] private string[] validGroundTags = { "Ground", "Player", "Ball" };
 
     private Rigidbody2D rb2D;
     private Vector3 facingRight = new Vector3(1f, 1.5f, 1f);
@@ -117,8 +119,25 @@ public class PlayerControls : MonoBehaviour{
         RaycastHit2D leftHit = Physics2D.Raycast(leftRaycastPoint.position, Vector2.down, rayDistance, whatIsGround);
         RaycastHit2D rightHit = Physics2D.Raycast(rightRaycastPoint.position, Vector2.down, rayDistance, whatIsGround);
 
-        return (leftHit.collider != null && leftHit.collider.CompareTag("Ground")) ||
-               (rightHit.collider != null && rightHit.collider.CompareTag("Ground")) ;
+        if (leftHit.collider != null)
+        {
+            foreach (string tag in validGroundTags)
+            {
+                if (leftHit.collider.CompareTag(tag))
+                    return true;
+            }
+        }
+
+        if (rightHit.collider != null)
+        {
+            foreach (string tag in validGroundTags)
+            {
+                if (rightHit.collider.CompareTag(tag))
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     private void FlipPlayer()
