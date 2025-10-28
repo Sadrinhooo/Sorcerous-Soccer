@@ -2,16 +2,25 @@ using UnityEngine;
 
 public class OffScreenBallIndicator : MonoBehaviour
 {
-    [SerializeField] private GameObject ballIndicator;
+    [SerializeField] private GameObject ballIndicator, ballIndicatorCenter;
 
     private GameObject ball;
 
-    private Vector3 screenBarPosition;
+    private float indicatorOffset = 30;
+
+    private float indicatorScaleMultiplier = 6f;
+
+    private Vector2 baseIndicatorScale;
+    private Vector3 minIndicatorScale = new Vector3(0.5f, 0.5f, 1);
+
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         ball = PlayerControls.ball;
+        ballIndicator.SetActive(false);
+        baseIndicatorScale = ballIndicatorCenter.transform.localScale;
     }
 
     // Update is called once per frame
@@ -22,12 +31,40 @@ public class OffScreenBallIndicator : MonoBehaviour
 
     public void IndicateBallPosition()
     {
-        
+        if (!IsOnScreen())
+        {
+            ballIndicator.SetActive(true);
+            Vector3 ballScreenSpacePos = Camera.main.WorldToScreenPoint(ball.transform.position);
+            ballScreenSpacePos = new Vector3(Mathf.Clamp(ballScreenSpacePos.x, 0 + indicatorOffset, Screen.width - indicatorOffset), Mathf.Clamp(ballScreenSpacePos.y, 0 + indicatorOffset, Screen.height - indicatorOffset), 10);
+            ballIndicator.transform.position = Camera.main.ScreenToWorldPoint(ballScreenSpacePos);
+        }
+        else
+        {
+            ballIndicator.SetActive(false);
+        }
+
+        Vector2 indicatorToScreenCenter = GetScreenCenter() - (Vector2)ballIndicator.transform.position;
+        indicatorToScreenCenter.Normalize();
+        float indicatorDegree = Mathf.Atan2(indicatorToScreenCenter.y, indicatorToScreenCenter.x) * Mathf.Rad2Deg;
+        ballIndicator.transform.rotation = Quaternion.Euler(0, 0, indicatorDegree);
+
+        float ballToScreenDistance = Vector2.Distance(ball.transform.position, GetScreenCenter());
+        ballIndicatorCenter.transform.localScale = baseIndicatorScale * (indicatorScaleMultiplier / ballToScreenDistance);
+
+        if (ballIndicatorCenter.transform.localScale.magnitude < minIndicatorScale.magnitude)
+        {
+            //ballIndicatorCenter.transform.localScale = minIndicatorScale;
+        }
     }
 
     public bool IsOnScreen()
     {
         Vector3 viewportPos = Camera.main.WorldToViewportPoint(ball.transform.position);
         return viewportPos.x >= 0 && viewportPos.x <= 1 && viewportPos.y >= 0 && viewportPos.y <= 1 &&viewportPos.z > 0;
+    }
+
+    public Vector2 GetScreenCenter()
+    {
+        return Camera.main.ScreenToWorldPoint(new Vector3(Screen.width / 2, Screen.height / 2));
     }
 }
