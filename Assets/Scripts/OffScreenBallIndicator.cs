@@ -43,9 +43,9 @@ public class OffScreenBallIndicator : MonoBehaviour
             ballIndicator.SetActive(false);
         }
 
-        Vector2 indicatorToScreenCenter = GetScreenCenter() - (Vector2)ballIndicator.transform.position;
-        indicatorToScreenCenter.Normalize();
-        float indicatorDegree = Mathf.Atan2(indicatorToScreenCenter.y, indicatorToScreenCenter.x) * Mathf.Rad2Deg;
+        Vector2 ballVelocity = ball.GetComponent<Rigidbody2D>().linearVelocity;
+        ballVelocity.Normalize();
+        float indicatorDegree = Mathf.Atan2(ballVelocity.y, ballVelocity.x) * Mathf.Rad2Deg;
         ballIndicator.transform.rotation = Quaternion.Euler(0, 0, indicatorDegree);
 
         float ballToScreenDistance = Vector2.Distance(ball.transform.position, GetScreenCenter());
