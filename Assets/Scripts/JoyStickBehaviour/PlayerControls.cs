@@ -33,6 +33,7 @@ public class PlayerControls : MonoBehaviour{
     private float rayDistance = 0.3f;
     private bool isAiming = false;
     private float velocityDampingSpeed = 4f;
+    private float ballVelocity;
 
     void Start()
     {
@@ -45,6 +46,7 @@ public class PlayerControls : MonoBehaviour{
     {
         joystickDirection.x = Input.GetAxis("Horizontal_" + playerController.ToString());
         joystickDirection.y = Input.GetAxis("Vertical_" + playerController.ToString());
+        ballVelocity = ball.GetComponent<Rigidbody2D>().linearVelocity.magnitude;
 
         if (Input.GetButtonUp("Aim_" + playerController.ToString()))
         {
@@ -98,12 +100,10 @@ public class PlayerControls : MonoBehaviour{
         if (joystickDirection.magnitude > 0.1f)
         {
             isAiming = true;
-            Debug.Log("Aiming direction: " + joystickDirection + " Shot direction: " + shotDirection);
         }
         else
         {
             isAiming = false;
-            Debug.Log("Aiming direction: " + joystickDirection + " Shot direction: " + shotDirection);
         }
 
         DrawArrow(joystickDirection);
@@ -138,6 +138,7 @@ public class PlayerControls : MonoBehaviour{
         }
 
         return false;
+        
     }
 
     private void FlipPlayer()

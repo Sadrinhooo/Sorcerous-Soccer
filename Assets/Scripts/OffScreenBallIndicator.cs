@@ -11,8 +11,6 @@ public class OffScreenBallIndicator : MonoBehaviour
     private float indicatorScaleMultiplier = 6f;
 
     private Vector2 baseIndicatorScale;
-    private Vector3 minIndicatorScale = new Vector3(0.5f, 0.5f, 1);
-
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -48,12 +46,15 @@ public class OffScreenBallIndicator : MonoBehaviour
         float indicatorDegree = Mathf.Atan2(ballVelocity.y, ballVelocity.x) * Mathf.Rad2Deg;
         ballIndicator.transform.rotation = Quaternion.Euler(0, 0, indicatorDegree);
 
+        //Change ball scale depending on ball distance from screen
         float ballToScreenDistance = Vector2.Distance(ball.transform.position, GetScreenCenter());
         ballIndicatorCenter.transform.localScale = baseIndicatorScale * (indicatorScaleMultiplier / ballToScreenDistance);
-
-        if (ballIndicatorCenter.transform.localScale.magnitude < minIndicatorScale.magnitude)
+        
+        Vector2 ballToScreenVector = GetScreenCenter() - (Vector2) ball.transform.localPosition;
+        float currentZ = ballIndicator.transform.eulerAngles.z;
+        if (Vector2.Dot(ballToScreenVector.normalized, ballVelocity.normalized) > 0)
         {
-            //ballIndicatorCenter.transform.localScale = minIndicatorScale;
+            ballIndicator.transform.rotation = Quaternion.Euler(0, 0, currentZ + 180);
         }
     }
 
