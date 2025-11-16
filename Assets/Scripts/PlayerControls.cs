@@ -16,30 +16,44 @@ public class PlayerControls : MonoBehaviour{
     [SerializeField] private Transform leftRaycastPoint, rightRaycastPoint;
     [SerializeField] private float ballInReachThreshhold;
     [SerializeField] private float ballToFeetSpeed;
-    [SerializeField] private PlayerControllers playerController;
+    [SerializeField] public PlayerControllers playerController;
     [SerializeField] private float horizontalMoveSpeed;
     [SerializeField] private float jumpForce;
     [SerializeField] private float shotPower;
     [SerializeField] private LayerMask whatIsGround;
     [SerializeField] private string[] validGroundTags = { "Ground", "Player", "Ball" };
+    [SerializeField] private RectTransform parryBar;
+    [SerializeField] private RectTransform parryBarTriggerZone;
+    [SerializeField] private RectTransform parryBarTrigger;
 
     private Rigidbody2D rb2D;
     private Vector3 facingRight = new Vector3(1f, 1.5f, 1f);
     private Vector3 facingLeft = new Vector3(-1f, 1.5f, 1f);
     private bool isFacingRight = true;
     public static GameObject ball;
+    private bool hasBall;
     private Vector2 joystickDirection;
     private Vector2 shotDirection;
     private float rayDistance = 0.3f;
     private bool isAiming = false;
     private float velocityDampingSpeed = 4f;
     private float ballVelocity;
+    private float ballVelocityParryThreshehold = 15;
+    private Vector2 parryBarOffset = new Vector2(0, 2f);
+    private bool hasParried;
+    private bool canParry;
+    private float triggerZoneMultiplier = 0.5f;
+
+    private BallBehaviour ballBehaviour;
 
     void Start()
     {
+        parryBar.gameObject.SetActive(false);
         rb2D = GetComponent<Rigidbody2D>();
         rb2D.gravityScale = 1.5f;
         ball = GameObject.FindGameObjectWithTag("Ball");
+        ballBehaviour = ball.GetComponent<BallBehaviour>();
+        hasParried = true;
     }
 
     void Update()
@@ -50,25 +64,32 @@ public class PlayerControls : MonoBehaviour{
 
         if (Input.GetButtonUp("Aim_" + playerController.ToString()))
         {
-            if (ball.GetComponent<BallBehaviour>().CurrentBallHolder == gameObject)
+            if (hasBall && ballBehaviour.CurrentBallHolder == gameObject)
             {
-                ball.GetComponent<BallBehaviour>().CurrentBallHolder = null;
-            }
+                if (isAiming)
+                {
+                    Shoot(shotDirection);
+                }
 
-            if (isAiming)
-            {
-                Shoot(shotDirection);
+                ballBehaviour.CurrentBallHolder = null;
+                hasBall = false;
+                rb2D.gravityScale = 1.5f;
             }
-
-            rb2D.gravityScale = 1.5f;
         }
 
         if (Input.GetButton("Aim_" + playerController.ToString()) && Vector2.Distance(transform.position, ball.transform.position) < ballInReachThreshhold)
         {
-            if (ball.GetComponent<BallBehaviour>().CurrentBallHolder == null)
+
+            if (ballBehaviour.CurrentBallHolder == null)
+            {
+                ballBehaviour.CurrentBallHolder = gameObject;
+                hasBall = true;
+                rb2D.gravityScale = 1f;
+            }
+
+            if (ballBehaviour.CurrentBallHolder == gameObject)
             {
                 Aim();
-                rb2D.gravityScale = 1f;
             }
         }
         else
@@ -83,6 +104,16 @@ public class PlayerControls : MonoBehaviour{
         }
 
         FlipPlayer();
+
+        parryBar.position = Camera.main.WorldToScreenPoint(transform.position + (Vector3)parryBarOffset);
+        if (Vector2.Distance(ball.transform.position, transform.position) < 5 && ballVelocity > ballVelocityParryThreshehold && hasParried && BallIsTowardsPlayer())
+        {
+            hasParried = false;
+            parryBar.gameObject.SetActive(true);
+            StartCoroutine("ParryBall");
+        }
+
+        Debug.Log(BallIsTowardsPlayer());
     }
 
     private void Aim()
@@ -183,6 +214,28 @@ public class PlayerControls : MonoBehaviour{
     {
         Vector2 ballPosition = ball.transform.position;
         Debug.DrawLine(ballPosition, ballPosition + shotDirection, Color.red);
+    }
+
+    public bool BallIsTowardsPlayer()
+    {
+        Vector2 playerPositionToBall = ball.transform.position - transform.position;
+        Vector2 ballVelocity = ball.GetComponent<Rigidbody2D>().linearVelocity;
+        return Vector2.Dot(playerPositionToBall.normalized, ballVelocity.normalized) < 0;
+    }
+
+    public IEnumerator ParryBall()
+    {
+        Vector2 startPos = parryBarTrigger.anchoredPosition;
+        Vector2 targetPos = new Vector2(startPos.x + 240f, startPos.y);
+        Vector3 startScale = parryBarTriggerZone.localScale;
+        parryBarTrigger.anchoredPosition = Vector2.MoveTowards(parryBarTrigger.anchoredPosition, targetPos, 0.5f * Time.deltaTime);
+
+        yield return new WaitForSeconds(1);
+
+        hasParried = true;
+        parryBar.gameObject.SetActive(false);
+        yield return null;
+
     }
 
 }

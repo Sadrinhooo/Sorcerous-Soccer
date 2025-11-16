@@ -15,10 +15,7 @@ public class BallBehaviour : MonoBehaviour
 
         set
         {
-            if (_currentBallHolder != null)
-            {
-                _currentBallHolder = value;
-            }
+            _currentBallHolder = value;
         }
     }
 
@@ -36,5 +33,11 @@ public class BallBehaviour : MonoBehaviour
             gameObject.transform.position = Vector2.zero;
             gameObject.GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
         }
+
+        if (_currentBallHolder != null)
+        {
+            Debug.Log(CurrentBallHolder.GetComponent<PlayerControls>().playerController.ToString());
+        }
+        
     }
 }
