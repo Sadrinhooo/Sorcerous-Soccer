@@ -28,11 +28,11 @@ public class BallBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetButtonDown("ResetBall"))
+        /*if (Input.GetButtonDown("ResetBall"))
         {
             gameObject.transform.position = Vector2.zero;
             gameObject.GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
-        }
+        }*/
 
         if (_currentBallHolder != null)
         {
